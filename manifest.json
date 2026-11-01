@@ -1,1 +1,11 @@
-{"name":"YSR Quotation Maker","short_name":"YSR Quote","start_url":"./index.html","scope":"./","display":"standalone","orientation":"portrait","background_color":"#0b5fff","theme_color":"#0b5fff","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]}
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "YSR Quotation Maker",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "YSR Quotation Maker",
+  "start_url": "/",
+  "theme_color": "#ffffff"
+}
