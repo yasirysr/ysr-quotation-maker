@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b5fff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>YSR Quotation</title>
+<style>
+:root{--bg:#f4f6f9;--cd:#fff;--tx:#14171a;--mu:#5b6570;--bd:#dde1e6;--ac:#0b5fff;--on:#fff;--ok:#0a7d3c;--bad:#c62828;box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1215;--cd:#181c21;--tx:#eceff2;--mu:#98a2ad;--bd:#2a3037;--ac:#6ea0ff;--on:#0b0d10;--ok:#4cc27a;--bad:#ff8a80}}
+:root[data-theme="dark"]{--bg:#0f1215;--cd:#181c21;--tx:#eceff2;--mu:#98a2ad;--bd:#2a3037;--ac:#6ea0ff;--on:#0b0d10;--ok:#4cc27a;--bad:#ff8a80}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--ac);color:var(--on);padding:calc(10px + env(safe-area-inset-top,0px)) 14px 0}
+header b{font-size:17px}header small{opacity:.85;margin-left:6px}
+nav{display:flex;margin-top:8px}
+nav button{flex:1;background:none;border:0;border-bottom:3px solid transparent;color:var(--on);opacity:.75;padding:10px 4px;font:inherit;font-weight:600;border-radius:0}
+nav button.on{opacity:1;border-color:var(--on)}
+main{padding:10px 12px 110px;max-width:680px;margin:auto}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+label{display:block;font-size:12px;color:var(--mu);margin:8px 0 3px}
+input,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+button{padding:10px 14px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);color:var(--tx);font:inherit;font-weight:600}
+button.p{background:var(--ac);color:var(--on);border-color:var(--ac)}button.d{color:var(--bad)}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+.sup{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:6px;margin-top:6px}
+.mu{color:var(--mu);font-size:12px}.ok{color:var(--ok);font-weight:700}.calc{margin-top:8px;font-size:13px}
+.tt div{display:flex;justify-content:space-between;padding:3px 0}
+.tt .big{font-size:18px;font-weight:700;border-top:1px solid var(--bd);margin-top:4px;padding-top:6px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--cd);border-top:1px solid var(--bd);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;z-index:5}
+.bar button{flex:1}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:20px;z-index:9;font-size:13px}
+#doc{background:#fff;color:#000;padding:14px;border:1px solid var(--bd);border-radius:8px;font-size:12px}
+#doc .hd{display:flex;justify-content:space-between;gap:10px;border-bottom:2px solid #000;padding-bottom:6px}
+#doc .co{font-size:20px;font-weight:700}
+#doc .cb{background:#eee;font-weight:700;padding:4px 6px;margin-top:8px}
+#doc table{width:100%;border-collapse:collapse;margin-top:8px}
+#doc th,#doc td{border:1px solid #999;padding:5px;text-align:left}#doc th{background:#eee}
+#doc .r{text-align:right}
+@media print{@page{size:A4;margin:12mm}body *{visibility:hidden}#doc,#doc *{visibility:visible}#doc{position:absolute;left:0;top:0;width:100%;border:0;font-size:12px}}
+</style>
+</head>
+<body>
+<header><b>YSR Computers</b><small>Quotation Maker</small>
+<nav><button id="n_q" onclick="go('q')">Quotation</button><button id="n_h" onclick="go('h')">History</button><button id="n_b" onclick="go('b')">Backup</button></nav></header>
+<main id="m"></main>
+<div class="bar" id="bar"></div>
+<script>
+var CO={name:'YSR COMPUTERS',tag:'Computer Hardware & IT Solutions',ph:'+91 8547891556, +91 8848979947',addr:'First Floor, Door No. 20/4/10, Ward 20, P K Tower, Santhi Nagar'};
+var TERMS=['Quotation validity: 30 days from date of issue.','Payment: 100% on delivery / installation.','Standard manufacturer warranty applies to all items.','Delivery within 2-3 business days upon confirmation.'];
+var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function $(i){return document.getElementById(i)}
+function ld(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function p2(n){return String(n).padStart(2,'0')}
+function iso(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+function fd(s){var a=String(s).split('-');return a.length===3?a[2]+'-'+MON[+a[1]-1]+'-'+a[0]:s}
+function r2(x){return Math.round((x+Number.EPSILON)*100)/100}
+function f(n){return '₹'+(+n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function nextNo(){return ld('ysr_n',14)}
+function newI(){return{item:'',qty:1,profit:'',q:[{s:'',m:'ex',p:''}]}}
+function newQ(){return{no:'YSR-'+new Date().getFullYear()+'-'+String(nextNo()).padStart(3,'0'),date:iso(new Date()),cust:'',phone:'',addr:'',items:[newI()]}}
+var H=ld('ysr_h',[]),Q=ld('ysr_draft',null)||newQ(),T='q',V='edit',HS='';
+
+/* ---- calculations (same logic as the Excel sheet) ---- */
+function calc(it){var b=null;it.q.forEach(function(s){var p=+s.p;if(!(p>0))return;var I=s.m==='in'?p:r2(p*1.18);if(!b||I<b.I)b={s:s.s,I:I}});
+if(!b)return null;var n=+it.qty||0,J=+it.profit||0,L=r2(J*1.18),M=r2(b.I+L);b.n=n;b.J=J;b.L=L;b.M=M;b.N=r2(M*n);return b}
+function tots(q){var u=0,c=0,p=0,pt=0,r=0,sub=0;q.items.forEach(function(it){var x=calc(it);if(!x)return;u+=x.n;c+=x.n*x.I;p+=x.n*x.J;pt+=x.n*x.L;r+=x.N;sub+=x.n*x.M});return{u:u,c:c,p:p,pt:pt,r:r,sub:sub,gst:sub/1.18*0.18}}
+function rw(a,b){return '<div><span>'+a+'</span><b>'+b+'</b></div>'}
+
+/* ---- views ---- */
+function go(t){T=t;V='edit';render()}
+function render(){var y=window.scrollY;
+['q','h','b'].forEach(function(k){$('n_'+k).className=T===k?'on':''});
+var m=$('m'),b=$('bar');
+if(T==='h'){b.innerHTML='';m.innerHTML='<input data-a="HS" placeholder="Search by customer, phone or quote number" value="'+esc(HS)+'" style="margin-bottom:10px"><div id="hl"></div>';hlist()}
+else if(T==='b'){b.innerHTML='';m.innerHTML='<div class="card"><b>Backup &amp; restore</b><p class="mu">All quotations are stored on this phone only. Take a backup regularly and keep the file in WhatsApp, Drive or email to yourself.</p><p>Saved quotations: <b>'+H.length+'</b><br>Next quote number: <b>'+nextNo()+'</b></p><div class="row"><button class="p" onclick="exp()">Download backup</button><button onclick="$(\'fi\').click()">Restore backup</button></div><input id="fi" type="file" accept=".json,application/json" style="display:none" onchange="imp(this)"></div>'}
+else if(V==='doc'){docView(m,b)}
+else{editor(m,b)}
+window.scrollTo(0,y)}
+function editor(m,b){var nm={};H.forEach(function(x){if(x.cust)nm[x.cust]=1});
+var dl=Object.keys(nm).map(function(n){return '<option value="'+esc(n)+'">'}).join('');
+var h='<div class="card"><div class="mu">Quote # '+esc(Q.no)+'</div><label>Customer name</label><input data-a="cn" data-k="cust" id="cn" list="cl" autocomplete="off" value="'+esc(Q.cust)+'"><datalist id="cl">'+dl+'</datalist><div class="row"><div><label>Phone number</label><input data-a="S" data-k="phone" id="cp" type="tel" value="'+esc(Q.phone)+'"></div><div><label>Date</label><input data-a="S" data-k="date" type="date" value="'+esc(Q.date)+'"></div></div><label>Customer address</label><input data-a="S" data-k="addr" id="ca" value="'+esc(Q.addr)+'"></div>';
+Q.items.forEach(function(it,i){
+h+='<div class="card"><div class="row"><div style="flex:3"><label>Item name ('+(i+1)+')</label><input data-a="I" data-i="'+i+'" data-k="item" value="'+esc(it.item)+'"></div><div><label>Qty</label><input data-a="I" data-i="'+i+'" data-k="qty" type="number" inputmode="decimal" value="'+esc(it.qty)+'"></div></div><label>Supplier price (lowest one is used)</label>';
+it.q.forEach(function(s,j){var a='data-a="Q" data-i="'+i+'" data-j="'+j+'"';h+='<div class="sup"><input '+a+' data-k="s" placeholder="Supplier" value="'+esc(s.s)+'"><input '+a+' data-k="p" type="number" inputmode="decimal" placeholder="Input price" value="'+esc(s.p)+'"><select '+a+' data-k="m"><option value="ex"'+(s.m==='ex'?' selected':'')+'>Excl. GST</option><option value="in"'+(s.m==='in'?' selected':'')+'>Incl. GST</option></select></div>'});
+h+='<div style="margin-top:6px"><button onclick="addQ('+i+')">+ Another supplier</button></div><label>Unit profit ₹ (excl. tax)</label><input data-a="I" data-i="'+i+'" data-k="profit" type="number" inputmode="decimal" value="'+esc(it.profit)+'"><div class="calc" id="c'+i+'"></div><div style="margin-top:8px"><button class="d" onclick="delI('+i+')">Remove item</button></div></div>'});
+h+='<button onclick="addI()" style="width:100%;margin-bottom:10px">+ Add item</button><div class="card tt"><b>Internal summary (not on customer copy)</b><div id="sm"></div></div><div class="card tt"><b>Quotation totals</b><div id="qt"></div></div>';
+m.innerHTML=h;
+b.innerHTML='<button onclick="newq()">New</button><button onclick="saveQ(1)">Save</button><button class="p" onclick="preview()">Preview</button>';upd()}
+function upd(){var t=tots(Q);
+Q.items.forEach(function(it,i){var r=calc(it),e=$('c'+i);if(e)e.innerHTML=r?'Best: <b>'+esc(r.s||'-')+'</b> · Net cost incl. GST '+f(r.I)+'<br>Profit incl. 18% tax '+f(r.L)+' · <b>Unit price '+f(r.M)+'</b> · Total '+f(r.N):'<span class="mu">Enter a price</span>'});
+var e=$('sm');if(e)e.innerHTML=rw('Total Units',t.u)+rw('Total Net Cost (Incl. 18% GST)',f(t.c))+rw('Total Expected Profit (Excl. Tax)','<span class="ok">'+f(t.p)+'</span>')+rw('Total Expected Profit (Taxed)',f(t.pt))+rw('Total Final Revenue',f(t.r));
+e=$('qt');if(e)e.innerHTML=rw('Total Subtotal',f(t.sub))+rw('GST (18% Included)',f(t.gst))+'<div class="big"><span>Total Amount Payable</span><span>'+f(t.sub)+'</span></div>';
+sv('ysr_draft',Q)}
+function addI(){Q.items.push(newI());render()}
+function delI(i){if(Q.items.length>1)Q.items.splice(i,1);else Q.items[0]=newI();render()}
+function addQ(i){Q.items[i].q.push({s:'',m:'ex',p:''});render()}
+function newq(){if(confirm('Start a new quotation? Unsaved changes will be lost.')){Q=newQ();sv('ysr_draft',Q);render()}}
+function saveQ(t){var i=H.findIndex(function(x){return x.no===Q.no}),c=JSON.parse(JSON.stringify(Q));c.total=r2(tots(Q).sub);
+if(i>=0)H[i]=c;else{H.push(c);sv('ysr_n',nextNo()+1)}sv('ysr_h',H);sv('ysr_draft',Q);if(t)toast('Saved')}
+function preview(){saveQ();V='doc';render()}
+function docView(m,b){var t=tots(Q),n=0,r='';
+Q.items.forEach(function(it){var x=calc(it);if(!x||!it.item)return;n++;r+='<tr><td>'+n+'</td><td>'+esc(it.item)+'</td><td class="r">'+x.n+'</td><td class="r">'+f(x.M)+'</td><td class="r">'+f(x.n*x.M)+'</td></tr>'});
+m.innerHTML='<div id="doc"><div class="hd"><div><div class="co">'+CO.name+'</div>'+CO.tag+'<br>Phone: '+CO.ph+'<br>'+CO.addr+'</div><div style="text-align:right"><b>PRICE QUOTATION</b><br>Quote #: '+esc(Q.no)+'<br>Date: '+fd(Q.date)+'</div></div><div class="cb">CUSTOMER DETAILS</div><div style="margin-top:4px">Customer Name: <b>'+esc(Q.cust)+'</b> &nbsp; Phone Number: <b>'+esc(Q.phone)+'</b><br>Customer Address: '+esc(Q.addr)+'</div><table><tr><th>#</th><th>Item Description</th><th class="r">Qty</th><th class="r">Unit Price (Incl. GST)</th><th class="r">Total Amount</th></tr>'+r+'</table><p style="text-align:right;margin:8px 0">Total Subtotal: '+f(t.sub)+'<br>GST (18% Included): '+f(t.gst)+'<br><b style="font-size:14px">Total Amount Payable: '+f(t.sub)+'</b></p><b>Terms &amp; Conditions:</b><br>'+TERMS.map(function(x,i){return (i+1)+'. '+x}).join('<br>')+'<p style="text-align:right;margin-top:30px">For '+CO.name+'<br><br><br>Authorized Signatory</p><p style="text-align:center"><i>Thank you for choosing YSR Computers!</i></p></div>';
+b.innerHTML='<button onclick="V=\'edit\';render()">Back</button><button onclick="window.print()">PDF / Print</button><button class="p" onclick="wa(Q)">WhatsApp</button>'}
+function wa(q){var t=tots(q),p=String(q.phone).replace(/\D/g,'');if(p.length===10)p='91'+p;var s='*'+CO.name+' - Quotation '+q.no+'*\nDate: '+fd(q.date)+'\nCustomer: '+q.cust+'\n\n',n=0;
+q.items.forEach(function(it){var x=calc(it);if(!x||!it.item)return;n++;s+=n+'. '+it.item+' x '+x.n+' @ '+f(x.M)+' = '+f(x.n*x.M)+'\n'});
+s+='\nGST (18% included): '+f(t.gst)+'\n*Total payable: '+f(t.sub)+'*\n\n'+CO.ph;window.open('https://wa.me/'+p+'?text='+encodeURIComponent(s),'_blank')}
+function hlist(){var e=$('hl');if(!e)return;var s=HS.toLowerCase(),h='';
+H.map(function(x,i){return i}).reverse().forEach(function(i){var x=H[i];if(s&&(x.no+' '+x.cust+' '+x.phone).toLowerCase().indexOf(s)<0)return;
+h+='<div class="card"><b>'+esc(x.no)+'</b> · '+fd(x.date)+'<br>'+esc(x.cust||'(no name)')+' <span class="mu">'+esc(x.phone)+' '+esc(x.addr)+'</span><div style="font-weight:700;margin:4px 0">'+f(x.total||0)+'</div><div class="row"><button onclick="openH('+i+',0)">Open</button><button onclick="openH('+i+',1)">Duplicate</button></div><div class="row" style="margin-top:6px"><button onclick="wa(H['+i+'])">WhatsApp</button><button class="d" onclick="delH('+i+')">Delete</button></div></div>'});
+e.innerHTML=h||'<div class="card mu">No saved quotations.</div>'}
+function openH(i,dup){Q=JSON.parse(JSON.stringify(H[i]));if(dup){var n=newQ();Q.no=n.no;Q.date=n.date}sv('ysr_draft',Q);T='q';V='edit';render()}
+function delH(i){if(confirm('Delete '+H[i].no+'?')){H.splice(i,1);sv('ysr_h',H);hlist()}}
+function exp(){var bl=new Blob([JSON.stringify({h:H,n:nextNo()})],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='ysr-quotation-backup-'+iso(new Date())+'.json';document.body.appendChild(a);a.click();a.remove()}
+function imp(inp){var fl=inp.files[0];if(!fl)return;var rd=new FileReader();rd.onload=function(){try{var d=JSON.parse(rd.result);if(!Array.isArray(d.h))throw 0;H=d.h;sv('ysr_h',H);sv('ysr_n',Math.max(+d.n||14,nextNo()));toast('Restored '+H.length+' quotations');render()}catch(e){alert('This is not a valid backup file.')}};rd.readAsText(fl)}
+function toast(t){var d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove()},1600)}
+function fill(){var n=Q.cust.trim().toLowerCase();if(!n)return;for(var i=H.length-1;i>=0;i--){if((H[i].cust||'').toLowerCase()===n){if(!Q.phone&&H[i].phone){Q.phone=H[i].phone;$('cp').value=Q.phone}if(!Q.addr&&H[i].addr){Q.addr=H[i].addr;$('ca').value=Q.addr}sv('ysr_draft',Q);break}}}
+$('m').addEventListener('input',function(e){var d=e.target.dataset,v=e.target.value;if(!d.a)return;
+if(d.a==='S'||d.a==='cn'){Q[d.k]=v;sv('ysr_draft',Q)}
+else if(d.a==='I'){Q.items[+d.i][d.k]=v;upd()}
+else if(d.a==='Q'){Q.items[+d.i].q[+d.j][d.k]=v;upd()}
+else if(d.a==='HS'){HS=v;hlist()}});
+$('m').addEventListener('change',function(e){if(e.target.dataset.a==='cn')fill()});
+render();
+try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
+</script>
+</body>
+</html>
